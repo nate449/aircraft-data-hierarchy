@@ -10,6 +10,16 @@ from unittest.mock import patch, MagicMock
 
 import graphviz
 
+# Import the diagram module directly so we can patch attributes on the actual
+# module object. Patching via dotted string paths is unreliable here because
+# work_breakdown_structure/__init__.py does `from .X import *` for several
+# submodules, which causes mock's dotted-path resolver to occasionally land on
+# the wrong namespace and raise AttributeError. patch.object(_diag_mod, "name")
+# sidesteps the resolver entirely.
+from aircraft_data_hierarchy.work_breakdown_structure.systems import (
+    systems_diagrams as _diag_mod,
+)
+
 from aircraft_data_hierarchy.work_breakdown_structure.systems.systems_parameters import (
     System as ParameterSystem,
     SystemAttributes,
@@ -285,36 +295,36 @@ def test_tables_are_html_formatted(two_block_system):
 _DIAG_MODULE = "aircraft_data_hierarchy.work_breakdown_structure.systems.systems_diagrams"
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_renders_png(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
     mock_render.assert_called_once_with("system_diagram", format="png", cleanup=True)
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_creates_image_with_correct_path(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
     mock_image.assert_called_once_with("system_diagram.png")
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_calls_display_twice(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
     assert mock_display.call_count == 2
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_first_call_is_image(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
@@ -322,9 +332,9 @@ def test_display_first_call_is_image(mock_render, mock_html, mock_image, mock_di
     assert first_call_arg is mock_image.return_value
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_second_call_is_html(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
@@ -332,9 +342,9 @@ def test_display_second_call_is_html(mock_render, mock_html, mock_image, mock_di
     assert second_call_arg is mock_html.return_value
 
 
-@patch(f"{_DIAG_MODULE}.display")
-@patch(f"{_DIAG_MODULE}.Image")
-@patch(f"{_DIAG_MODULE}.HTML")
+@patch.object(_diag_mod, "display")
+@patch.object(_diag_mod, "Image")
+@patch.object(_diag_mod, "HTML")
 @patch("graphviz.Digraph.render")
 def test_display_html_contains_table_titles(mock_render, mock_html, mock_image, mock_display, two_block_system):
     display_system_info(two_block_system)
