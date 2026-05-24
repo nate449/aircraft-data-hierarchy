@@ -56,3 +56,7 @@ include = ["aircraft_data_hierarchy*"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::pydantic.PydanticDeprecatedSince20",
+]
