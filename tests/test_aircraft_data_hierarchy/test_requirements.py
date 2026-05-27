@@ -143,6 +143,66 @@ class TestRequirements(unittest.TestCase):
             self.requirements.get_requirements_by_category("nonexistent")
 
 
+class TestRequirementWhitespaceValidation(unittest.TestCase):
+    """Test that each validated field on Requirement rejects whitespace variants."""
+
+    VALID_KWARGS = {
+        "name": "REQ-001",
+        "description": "Valid description",
+        "priority": "high",
+        "verification_method": "test",
+        "status": "open",
+        "acceptance_criteria": "Must pass.",
+    }
+
+    WHITESPACE_VARIANTS = ["", " ", "   ", "\t", "\n", "\r\n", " \t\n\r "]
+
+    VALIDATED_FIELDS = [
+        "name", "description", "priority",
+        "verification_method", "status", "acceptance_criteria",
+    ]
+
+    def test_each_field_rejects_whitespace(self):
+        for field in self.VALIDATED_FIELDS:
+            for bad in self.WHITESPACE_VARIANTS:
+                kwargs = {**self.VALID_KWARGS, field: bad}
+                with self.assertRaises(
+                    ValidationError,
+                    msg=f"{field!r} should reject {bad!r}",
+                ):
+                    Requirement(**kwargs)
+
+    def test_each_field_strips_and_stores(self):
+        for field in self.VALIDATED_FIELDS:
+            kwargs = {**self.VALID_KWARGS, field: "  valid  "}
+            req = Requirement(**kwargs)
+            self.assertEqual(getattr(req, field), "valid")
+
+
+class TestRequirementsWhitespaceValidation(unittest.TestCase):
+    """Test that name and description on Requirements reject whitespace."""
+
+    VALID_KWARGS = {"name": "Req Set", "description": "Valid set description"}
+    WHITESPACE_VARIANTS = ["", " ", "   ", "\t", "\n", "\r\n", " \t\n\r "]
+    VALIDATED_FIELDS = ["name", "description"]
+
+    def test_each_field_rejects_whitespace(self):
+        for field in self.VALIDATED_FIELDS:
+            for bad in self.WHITESPACE_VARIANTS:
+                kwargs = {**self.VALID_KWARGS, field: bad}
+                with self.assertRaises(
+                    ValidationError,
+                    msg=f"{field!r} should reject {bad!r}",
+                ):
+                    Requirements(**kwargs)
+
+    def test_each_field_strips_and_stores(self):
+        for field in self.VALIDATED_FIELDS:
+            kwargs = {**self.VALID_KWARGS, field: "  valid  "}
+            req = Requirements(**kwargs)
+            self.assertEqual(getattr(req, field), "valid")
+
+
 if __name__ == "__main__":
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
 
